@@ -119,7 +119,7 @@ __global__ void tdivKernel(const int64_t *x,const int16_t *y,int64_t *z){ *z = *
 __global__ void tdivKernel(const int64_t *x,const int32_t *y,int64_t *z){ *z = *x / *y; }
 __global__ void tdivKernel(const int64_t *x,const int64_t *y,int64_t *z){ *z = *x / *y; }
 __global__ void fdivKernel(const int64_t *x,const int16_t *y,int64_t *z){ *z = *x / *y; }
-__global__ void fidvKernel(const int64_t *x,const int32_t *y,int64_t *z){ *z = *x / *y; }
+__global__ void fdivKernel(const int64_t *x,const int32_t *y,int64_t *z){ *z = *x / *y; }
 __global__ void fdivKernel(const int64_t *x,const int64_t *y,int64_t *z){ *z = *x / *y; }
 __global__ void modKernel(const int64_t *x,const int16_t *y,int64_t *z){ *z = *x % *y; }
 __global__ void modKernel(const int64_t *x,const int32_t *y,int64_t *z){ *z = *x % *y; }
@@ -1218,21 +1218,225 @@ int64_t int32::le(const int64 &other) const {
   return host_value;
 }
 
+int64 int64::add(const int64 &other) const {
+  int64 result(0);
+  addKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::sub(const int64 &other) const {
+  int64 result(0);
+  subKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::mul(const int64 &other) const {
+  int64 result(0);
+  mulKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::tdiv(const int64 &other) const {
+  int64 result(0);
+  tdivKernel<<<1,1>>>(this -> value,other.value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::fdiv(const int64 &other) const {
+  int64 result(0);
+  fdivKernel<<<1,1>>>(this -> value,other.value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::mod(const int64 &other) const {
+  int64 result(0);
+  modKernel<<<1,1>>>(this -> value,other.value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::pow(const int64 &other) const {
+  int64 result(0);
+  powKernel<<<1,1>>>(this -> value,other.value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64_t int64::eq(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  eqKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64_t int64::ne(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  neKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64_t int64::gt(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  gtKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64_t int64::ge(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  geKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64_t int64::lt(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  ltKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64_t int64::le(const int64 &other) const {
+  int64_t host_value;
+  int64_t *device_value;
+  cudaMalloc(&device_value,sizeof(int64_t));
+  leKernel<<<1,1>>>(this -> value,other.value,device_value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  cudaMemcpy(&host_value,device_value,sizeof(int64_t),cudaMemcpyDeviceToHost);
+  cudaFree(device_value);
+  return host_value;
+}
+
+int64 int64::abs() const {
+  int64 result(0);
+  absKernel<<<1,1>>>(this -> value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::neg() const {
+  int64 result(0);
+  negKernel<<<1,1>>>(this -> value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::pos() const {
+  int64 result(0);
+  posKernel<<<1,1>>>(this -> value,result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::add(const int32 &other) const {
+  int64 result(0);
+  addKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::sub(const int32 &other) const {
+  int64 result(0);
+  subKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::mul(const int32 &other) const {
+  int64 result(0);
+  mulKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return resultl;
+}
+
+int64 int64::tdiv(const int32 &other) const {
+  int64 result(0);
+  tdivKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::fdiv(const int32 &other) const {
+  int64 result(0);
+  fdivKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::mod(const int32 &other) const {
+  int64 result(0);
+  modKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
+
+int64 int64::pow(const int32 &other) const {
+  int64 result(0);
+  powKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
+  cudaGetLastError();
+  cudaDeviceSynchronize();
+  return result;
+}
 
 
 
 
 
-// int64 int64::add(const int16 &other) const {
-//   int64 result(0);
-//   addKernel<<<1,1>>>(this -> value,other.deviceValue(),result.value);
-//   cudaGetLastError();
-//   cudaDeviceSynchronize();
-//   return result;
-// }
 
-// int64 int64::sub(const int16 *other) const {
-//   int64 result(0);
-//   subKernel<<<1,1>>>(this -> value,other->deviceValue(),result.value);
 
-// }
+
+
+
+
+
+
+
+
