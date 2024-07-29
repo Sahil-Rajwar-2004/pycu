@@ -1,5 +1,5 @@
 #include <iostream>
-#include "intn.cu"
+#include "dtypes.cu"
 using namespace std;
 
 int main(){
@@ -7,12 +7,10 @@ int main(){
   int32 a(3);
   int64 u(2);
 
-  int16_t v = 2;
-  int64_t w = 12;
-
   cout << x.add(u).getValue() << endl;
   cout << x.sub(u).getValue() << endl;
-  cout << v + w << endl;
+
+  cout << u.add(x).getValue() << endl;
 
 
   cout << a.eq(u) << endl;
