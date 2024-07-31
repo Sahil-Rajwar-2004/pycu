@@ -5,9 +5,9 @@ this lib is under construction
 
 ## To Do's
 
-- [x] (define int16 class)
-- [x] (define int32 class)
-- [x] (define int64 class)
+- [ ] (define int16 class)
+- [ ] (define int32 class)
+- [ ] (define int64 class)
 - [ ] (define float16 class)
 - [ ] (define float32 class)
 - [ ] (define float64 class)
