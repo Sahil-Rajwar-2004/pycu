@@ -1,4 +1,4 @@
 *.exe
 .vscode
 .ipynb_checkpoints/
-pycu/__pycache__/
+__pycache__/
