@@ -12,5 +12,5 @@ this lib is under construction
 - [ ] (define float32 class)
 - [ ] (define float64 class)
 - [ ] (link them together)
-- [ ] (link cuda file with python)
+- [x] (link cuda file with python)
 - [ ] (add some features init)
