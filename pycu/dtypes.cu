@@ -95,12 +95,7 @@ class int16{
     }
 
     int16_t *deviceValue() const { return this -> val; }
-/*
-    int32 to_int32() const {
-      int16_t buff = getValue();
-      return int32(static_cast<int32_t>(buff));
-    }
-*/
+
     int16 add(const int16 &other) const ;
     int16 sub(const int16 &other) const ;
     int16 mul(const int16 &other) const ;

@@ -8,7 +8,7 @@ from ctypes import (
   c_int64
 )
 
-if os.name == "nt": raise OSError(f"this library isn't compatible with Windows OS, instead you can use WSL!")
+if os.name == "nt": raise OSError(f"this library isn't compatible with Windows OS, instead you can use WSL! see [https://learn.microsoft.com/en-us/windows/wsl/install]")
 elif os.name == "posix": PATH = os.path.join(os.path.dirname(__file__),"dtypes.so")
 
 if not os.path.exists(PATH): raise FileNotFoundError("couldn't find the file dtyes.so")
@@ -19,7 +19,6 @@ class Int16(Structure): _fields_ = [("value",c_int16)]
 class Int32(Structure): _fields_ = [("value",c_int32)]
 class Int64(Structure): _fields_ = [("value",c_int64)]
 
-lib.int16_new.argtypes = [c_int16]
 lib.int16_new.restype = POINTER(Int16)
 lib.int16_delete.argtypes = [POINTER(Int16)]
 lib.int16_delete.restype = None
@@ -103,10 +102,8 @@ lib.int64_pos.argtypes = [POINTER(Int64)]
 lib.int64_pos.restype = POINTER(Int64)
 
 
-
-
 class int16:
-    def __init__(self,value): self.__value = lib.int16_new(value)
+    def __init__(self,value): self.__value = lib.int16_new(int(value))
 
     def __del__(self): lib.int16_delete(self.__value)
 
@@ -156,15 +153,97 @@ class int16:
             return result
         elif isinstance(other,int32): return self.to_int32() / other
         elif isinstance(other,int64): return self.to_int64() / other
-        raise TypeError(f"unsupported operand typr for /: '{type(other).__name__}' with 'int16'")
+        raise TypeError(f"unsupported operand type for /: '{type(other).__name__}' with 'int16'")
+
+    def __floordiv__(self,other):
+        if isinstance(other,int16):
+            result = int16(0)
+            result.__value = lib.int16_fdiv(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32): return self.to_int32() // other
+        elif isinstance(other,int64): return self.to_int64() // other
+        raise TypeError(f"unsupported operand type for //: '{type(other).__name__}' with 'int16'")
+
+    def __mod__(self,other):
+        if isinstance(other,int16):
+            result = int16(0)
+            result.__value = lib.int16_mod(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32): return self.to_int32() % other
+        elif isinstance(other,int64): return self.to_int64() % other
+        raise TypeError(f"unsupported operand type for %: '{type(other).__name__}' with 'int16'")
+
+    def __pow__(self,other):
+        if isinstance(other,int16):
+            result = int16(0)
+            result.__value = lib.int16_pow(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32): return self.to_int32() ** other
+        elif isinstance(other,int64): return self.to_int64() ** other
+        raise TypeError(f"unsupported operand type for **: '{type(other).__name__}' with 'int16'")
+
+    def __abs__(self):
+        result = int16(0)
+        result.__value = lib.int16_abs(self.__value)
+        return result
+
+    def __neg__(self):
+        result = int16(0)
+        result.__value = lib.int16_neg(self.__value)
+        return result
+
+    def __pos__(self):
+        result = int16(0)
+        result.__value = lib.int16_pos(self.__value)
+        return result
+
+    def __eq__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_eq(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() == other
+        elif isinstance(other,int64): return self.to_int64() == other
+        raise TypeError(f"unsupported operand type for ==: '{type(other).__name__}' with 'int16'")
+    
+    def __ne__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_ne(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() != other
+        elif isinstance(other,int64): return self.to_int64() != other
+        raise TypeError(f"unsupported operand type for !=: '{type(other).__name__}' with 'int16'")
+
+    def __gt__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_gt(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() > other
+        elif isinstance(other,int64): return self.to_int64() > other
+        raise TypeError(f"unsupported operand type for >: '{type(other).__name__}' with 'int16'")
+
+    def __ge__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_ge(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() >= other
+        elif isinstance(other,int64): return self.to_int64() >= other
+        raise TypeError(f"unsupported opernad type for >=: '{type(other).__name__}' with 'int16'")
+
+    def __lt__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_lt(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() < other
+        elif isinstance(other,int64): return self.to_int64() < other
+        raise TypeError(f"unsupported opernad type for <: '{type(other).__name__}' with 'int16'")
+
+    def __le__(self,other):
+        if isinstance(other,int16): return bool(lib.int16_le(self.__value,other.__value))
+        elif isinstance(other,int32): return self.to_int32() <= other
+        elif isinstance(other,int64): return self.to_int64() <= other
+        raise TypeError(f"unsupported operand type for <=: '{type(other).__name__}' with 'int16'")
+
+
 
 
 class int32:
-    def __init__(self,value): self.__value = lib.int32_new(value)
+    def __init__(self,value): self.__value = lib.int32_new(int(value))
 
     def __del__(self): lib.int32_delete(self.__value)
 
     def __repr__(self): return f"{lib.int32_value(self.__value)}"
+
+    def to_int16(self): return int16(lib.int32_value(self.__value))
 
     def to_int64(self): return int64(lib.int32_value(self.__value))
 
@@ -212,13 +291,94 @@ class int32:
         elif isinstance(other,int16): return self / other.to_int32()
         raise TypeError(f"unsupported operand type for +: '{type(other).__name__}' with 'int32'")
 
+    def __floordiv__(self,other):
+        if isinstance(other,int32):
+            result = int32(0)
+            result.__value = lib.int32_fdiv(self.__value,other.__value)
+            return result
+        elif isinstance(other,int64): return self.to_int64() // other
+        elif isinstance(other,int16): return self // other.to_int64()
+        raise TypeError(f"unsupported operand type for //: '{type(other).__name__}' with 'int32'")
+
+    def __mod__(self,other):
+        if isinstance(other,int32):
+            result = int32(0)
+            result.__value = lib.int32_mod(self.__value,other.__value)
+            return result
+        elif isinstance(other,int64): return self.to_int64() % other
+        elif isinstance(other,int16): return self % other.to_int32()
+        raise TypeError(f"unsupported operand type for %: '{type(other).__name__}' with 'int32'")
+
+    def __pow__(self,other):
+        if isinstance(other,int32):
+            result = int32(0)
+            result.__value = lib.int32_pow(self.__value,other.__value)
+            return result
+        elif isinstance(other,int64): return self.to_int64() ** other
+        elif isinstance(other,int16): return self ** other.to_int32()
+        raise TypeError(f"unsupported operand type for **: '{type(other).__name__}' with 'int32'")
+
+    def __abs__(self):
+        result = int32(0)
+        result.__value = lib.int32_abs(self.__value)
+        return result
+
+    def __neg__(self):
+        result = int32(0)
+        result.__value = lib.int32_neg(self.__value)
+        return result
+
+    def __pos__(self):
+        result = int32(0)
+        result.__value = lib.int32_pos(self.__value)
+        return result
+
+    def __eq__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_eq(self.__value,other.__value))
+        elif isinstance(other,int16): return self == other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() == other
+        raise TypeError(f"unsupported operand type for ==: '{type(other).__name__}' with 'int32'")
+
+    def __ne__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_ne(self.__value,other.__value))
+        elif isinstance(other,int16): return self != other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() != other
+        raise TypeError(f"unsupported operand type for !=: '{type(other).__name__}' with 'int32'")
+
+    def __gt__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_gt(self.__value,other.__value))
+        elif isinstance(other,int16): return self > other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() > other
+        raise TypeError(f"unsupported operand type for >: '{type(other).__name__}' with 'int32'")
+
+    def __ge__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_ge(self.__value,other.__value))
+        elif isinstance(other,int16): return self >= other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() >= other
+        raise TypeError(f"unsupported operand type for >=: '{type(other).__name__}' with 'int32'")
+
+    def __lt__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_lt(self.__value,other.__value))
+        elif isinstance(other,int16): return self < other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() < other
+        raise TypeError(f"unsupported operand type for <: '{type(other).__name__}' with 'int32'")
+
+    def __le__(self,other):
+        if isinstance(other,int32): return bool(lib.int32_le(self.__value,other.__value))
+        elif isinstance(other,int16): return self <= other.to_int32()
+        elif isinstance(other,int64): return self.to_int64() <= other
+        raise TypeError(f"unsupported operand type for <=: '{type(other).__name__}' with 'int32'")
 
 class int64:
-    def __init__(self,value): self.__value = lib.int64_new(value)
+    def __init__(self,value): self.__value = lib.int64_new(int(value))
 
     def __del__(self): lib.int64_delete(self.__value)
 
     def __repr__(self): return f"{lib.int64_value(self.__value)}"
+
+    def to_int16(self): return int16(lib.int64_value(self.__value))
+
+    def to_int32(self): return int32(lib.int64_value(self.__value))
 
     @property
     def value(self): return self.__value
@@ -232,6 +392,7 @@ class int64:
             result.__value = lib.int64_add(self.__value,other.__value)
             return result
         elif isinstance(other,int32) or isinstance(other,int16): return self + other.to_int64()
+        raise TypeError(f"unsupported operand type for +: '{type(other).__name__}' with 'int64'")
     
     def __sub__(self,other):
         if isinstance(other,int64):
@@ -239,6 +400,7 @@ class int64:
             result.__value = lib.int64_sub(self.__value,other.__value)
             return result
         elif isinstance(other,int32) or isinstance(other,int16): return self - other.to_int64()
+        raise TypeError(f"unsupported operand type for +: '{type(other).__name__}' with 'int64'")
 
     def __mul__(self,other):
         if isinstance(other,int64):
@@ -246,6 +408,82 @@ class int64:
             result.__value = lib.int64_mul(self.__value,other.__value)
             return result
         elif isinstance(other,int32) or isinstance(other,int16): return self * other.to_int64()
+        raise TypeError(f"unsupported operand type for *: '{type(other).__name__}' with 'int64'")
 
+    def __truediv__(self,other):
+        if isinstance(other,int64):
+            result = int64(0)
+            result.__value = lib.int64_tdiv(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32) or isinstance(other,int16): return self / other.to_int64()
+        raise TypeError(f"unsupported operand type for /: '{type(other).__name__}' with 'int64'")
 
+    def __floordiv__(self,other):
+        if isinstance(other,int64):
+            result = int64(0)
+            result.__value = lib.int64_fdiv(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32) or isinstance(other,int16): return self // other.to_int64()
+        raise TypeError(f"unsupported operand type for //: '{type(other).__name__}' with 'int64'")
+
+    def __mod__(self,other):
+        if isinstance(other,int64):
+            result = int64(0)
+            result.__value = lib.int64_mod(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32) or isinstance(other,int16): return self // other.to_int64()
+        raise TypeError(f"unsupported operand type for %: '{type(other).__name__}' with 'int64'")
+
+    def __pow__(self,other):
+        if isinstance(other,int64):
+            result = int64(0)
+            result.__value = lib.int64_pow(self.__value,other.__value)
+            return result
+        elif isinstance(other,int32) or isinstance(other,int16): return self ** other.to_int64()
+        raise TypeError(f"unsupported operand type for **: '{type(other).__name__}' with 'int64'")
+
+    def __abs__(self):
+        result = int64(0)
+        result.__value = lib.int64_abs(self.__value)
+        return result
+
+    def __neg__(self):
+        result = int64(0)
+        result.__value = lib.int64_neg(self.__value)
+        return result
+
+    def __pos__(self):
+        result = int64(0)
+        result.__value = lib.int64_pos(self.__value)
+        return result
+
+    def __eq__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_eq(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self == other.to_int64()
+        raise TypeError(f"unsupported operand type for ==: '{type(other).__name__}' with 'int64'")
+
+    def __ne__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_ne(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self == other.to_int64()
+        raise TypeError(f"unsupported operand type for !=: '{type(other).__name__}' with 'int64'")
+
+    def __gt__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_gt(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self > other.to_int64()
+        raise TypeError(f"unsupported operand type for >: '{type(other).__name__}' with 'int64'")
+
+    def __ge__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_ge(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self > other.to_int64()
+        raise TypeError(f"unsupported operand type for >=: '{type(other).__name__}' with 'int64'")
+
+    def __lt__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_lt(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self < other.to_int64()
+        raise TypeError(f"unsupported operand type for <: '{type(other).__name__}' with 'int64'")
+
+    def __le__(self,other):
+        if isinstance(other,int64): return bool(lib.int64_le(self.__value,other.__value))
+        elif isinstance(other,int32) or isinstance(other,int16): return self <= other.to_int64()
+        raise TypeError(f"unsupported operand type for <=: '{type(other).__name__}' with 'int64'")
 
